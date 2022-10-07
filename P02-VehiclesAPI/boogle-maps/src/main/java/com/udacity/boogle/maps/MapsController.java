@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MapsController {
 
     @GetMapping
-    public Address get(@RequestParam Double lat, @RequestParam Double lon) {
+    public Address get(@RequestParam("lat") Double lat, @RequestParam("lon") Double lon) {
         return MockAddressRepository.getRandom();
     }
 }
