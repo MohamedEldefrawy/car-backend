@@ -12,7 +12,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -40,8 +39,6 @@ public class VehiclesApiIntegrationTests {
 
     @Test
     public void getVehicleById() {
-//        ResponseEntity<Car> response =
-//                this.restTemplate.getForEntity("http://localhost:8080/cars/1", Car.class);
         ResponseEntity<Car> response =
                 this.restTemplate.getForEntity(url + PORT + "/cars/1", Car.class);
 
