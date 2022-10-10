@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.equalTo;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public class VehiclesApiApplicationTests {
+public class VehiclesApiIntegrationTests {
 
 
     @Autowired
@@ -89,6 +89,33 @@ public class VehiclesApiApplicationTests {
         assertThat(response.getStatusCode(), equalTo(HttpStatus.CREATED));
     }
 
+    @Test
+    public void updateVehicle() {
+        var tempCar = new Car();
+        var details = new Details();
+        var location = new Location(40.7D, -73.55D);
+        details.setBody("newBody");
+        details.setEngine("newEngine");
+        details.setModel("newModel");
+        details.setFuelType("newFuelType");
+        details.setNumberOfDoors(4);
+        details.setModelYear(2022);
+        details.setExternalColor("Black");
+        details.setManufacturer(new Manufacturer(101, "Chevrolet"));
+        details.setProductionYear(2022);
+        details.setMileage(200);
+
+        tempCar.setCondition(Condition.NEW);
+        tempCar.setCreatedAt(LocalDateTime.now());
+        tempCar.setModifiedAt(LocalDateTime.now());
+        tempCar.setDetails(details);
+        tempCar.setLocation(location);
+        tempCar.setPrice("252525252");
+        tempCar.setId(1L);
+        var httpEntity = new HttpEntity<>(tempCar);
+        var response = this.restTemplate.exchange("http://localhost:8080/cars/1", HttpMethod.PUT, httpEntity, Car.class);
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
+    }
 
 }
 
