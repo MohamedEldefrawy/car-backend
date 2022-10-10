@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -35,36 +36,40 @@ public class VehiclesApiIntegrationTests {
     @LocalServerPort
     private int PORT;
 
+    private final String url = "http://localhost:";
 
     @Test
     public void getVehicleById() {
+//        ResponseEntity<Car> response =
+//                this.restTemplate.getForEntity("http://localhost:8080/cars/1", Car.class);
         ResponseEntity<Car> response =
-                this.restTemplate.getForEntity("http://localhost:8080/cars/1", Car.class);
+                this.restTemplate.getForEntity(url + PORT + "/cars/1", Car.class);
+
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
     }
 
     @Test
     public void getVehicleByInvalidId() {
         ResponseEntity<Car> response =
-                this.restTemplate.getForEntity("http://localhost:8080/cars/1231231", Car.class);
+                this.restTemplate.getForEntity(url + PORT + "/cars/1231231", Car.class);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
     }
 
     @Test
     public void getAllVehicles() {
         ResponseEntity<Car> response =
-                this.restTemplate.getForEntity("http://localhost:8080/cars", Car.class);
+                this.restTemplate.getForEntity(url + PORT + "/cars", Car.class);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
     }
 
     @Test
-    public void deleteVehicle() {
-        var response = this.restTemplate.exchange("http://localhost:8080/cars/1", HttpMethod.DELETE, HttpEntity.EMPTY, Void.class);
-        assertThat(response.getStatusCode(), equalTo(HttpStatus.NOT_FOUND));
+    public void lastDeleteVehicle() {
+        var response = this.restTemplate.exchange(url + PORT + "/cars/1", HttpMethod.DELETE, HttpEntity.EMPTY, Void.class);
+        assertThat(response.getStatusCode(), equalTo(HttpStatus.NO_CONTENT));
     }
 
     @Test
-    public void insertVehicle() {
+    public void firstInsertVehicle() {
         var tempCar = new Car();
         var details = new Details();
         var location = new Location(40.7D, -73.55D);
@@ -85,7 +90,7 @@ public class VehiclesApiIntegrationTests {
         tempCar.setDetails(details);
         tempCar.setLocation(location);
         var httpEntity = new HttpEntity<>(tempCar);
-        var response = this.restTemplate.exchange("http://localhost:8080/cars", HttpMethod.POST, httpEntity, Car.class);
+        var response = this.restTemplate.exchange(url + PORT + "/cars", HttpMethod.POST, httpEntity, Car.class);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.CREATED));
     }
 
@@ -113,7 +118,7 @@ public class VehiclesApiIntegrationTests {
         tempCar.setPrice("252525252");
         tempCar.setId(1L);
         var httpEntity = new HttpEntity<>(tempCar);
-        var response = this.restTemplate.exchange("http://localhost:8080/cars/1", HttpMethod.PUT, httpEntity, Car.class);
+        var response = this.restTemplate.exchange(url + PORT + "/cars/1", HttpMethod.PUT, httpEntity, Car.class);
         assertThat(response.getStatusCode(), equalTo(HttpStatus.OK));
     }
 
