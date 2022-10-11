@@ -38,7 +38,13 @@ public class CarService {
      * @return a list of all vehicles in the CarRepository
      */
     public List<Car> list() {
-        return repository.findAll();
+
+        var cars = repository.findAll();
+        for (var car : cars) {
+            var price = this.pricingService.getPrice(car.getId());
+            car.setPrice(price);
+        }
+        return cars;
     }
 
     /**

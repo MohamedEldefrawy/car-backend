@@ -24,11 +24,6 @@ public class PriceClient {
         this.client = pricing;
     }
 
-    // In a real-world application we'll want to add some resilience
-    // to this method with retries/CB/failover capabilities
-    // We may also want to cache the results so we don't need to
-    // do a request every time
-
     /**
      * Gets a vehicle price from the pricing client, given vehicle ID.
      *
@@ -39,9 +34,10 @@ public class PriceClient {
      */
     public String getPrice(Long vehicleId) {
         try {
-            Price price = client
+            var price = client
                     .get()
-                    .uri("http://localhost:8082/prices/" + vehicleId)
+                    .uri(new URI("http://localhost:8082/prices/" + vehicleId))
+                    .accept(MediaType.APPLICATION_JSON)
                     .retrieve().bodyToMono(Price.class).block();
 
             if (price != null)
@@ -53,7 +49,6 @@ public class PriceClient {
         }
         return "(consult price)";
     }
-
 
     public Price SetVehiclePrice(Long vehicleId, String priceValue, String currency) throws SetVehiclePriceException {
         try {
@@ -79,12 +74,9 @@ public class PriceClient {
         try {
             client
                     .delete()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("services/prices/")
-                            .queryParam("vehicleId", vehicleId)
-                            .build()
-                    );
-
+                    .uri(new URI("http://localhost:8082/prices/" + vehicleId))
+                    .accept(MediaType.APPLICATION_JSON)
+                    .retrieve().bodyToMono(Void.class).block();
         } catch (Exception e) {
             log.error("Unexpected error retrieving price for vehicle {}", vehicleId, e);
         }
