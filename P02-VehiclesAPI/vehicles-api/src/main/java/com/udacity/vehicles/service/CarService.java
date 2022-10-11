@@ -2,6 +2,8 @@ package com.udacity.vehicles.service;
 
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.domain.car.CarRepository;
+import com.udacity.vehicles.exception.CarNotFoundException;
+import com.udacity.vehicles.exception.SetVehiclePriceException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -66,7 +68,7 @@ public class CarService {
      * @param car A car object, which can be either new or existing
      * @return the new/updated car is stored in the repository
      */
-    public Car save(Car car) {
+    public Car save(Car car) throws SetVehiclePriceException {
         if (car.getId() != null) {
             this.pricingService.setVehiclePrice(car.getId(), car.getPrice(), "EGP");
             return repository.findById(car.getId())
@@ -77,8 +79,11 @@ public class CarService {
                         return repository.save(carToBeUpdated);
                     }).orElseThrow(CarNotFoundException::new);
         }
-
-        return repository.save(car);
+        var newCar = repository.save(car);
+        var price = this.pricingService.setVehiclePrice(newCar.getId(), newCar.getPrice(), "EGP");
+        if (price == null)
+            throw new SetVehiclePriceException("Set Price Exception");
+        return newCar;
     }
 
     /**

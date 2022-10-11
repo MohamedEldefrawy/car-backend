@@ -1,4 +1,4 @@
-package com.udacity.vehicles.service;
+package com.udacity.vehicles.exception;
 
 public class SetVehiclePriceException extends Exception {
 

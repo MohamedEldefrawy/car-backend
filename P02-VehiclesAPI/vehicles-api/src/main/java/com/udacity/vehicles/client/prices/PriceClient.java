@@ -1,10 +1,14 @@
 package com.udacity.vehicles.client.prices;
 
-import com.udacity.vehicles.service.SetVehiclePriceException;
+import com.udacity.vehicles.exception.SetVehiclePriceException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+
+import java.net.URI;
 
 /**
  * Implements a class to interface with the Pricing Client for price data.
@@ -37,15 +41,13 @@ public class PriceClient {
         try {
             Price price = client
                     .get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("services/prices/")
-                            .queryParam("vehicleId", vehicleId)
-                            .build()
-                    )
+                    .uri("http://localhost:8082/prices/" + vehicleId)
                     .retrieve().bodyToMono(Price.class).block();
 
-            return String.format("%s %s", price.getCurrency(), price.getPrice());
+            if (price != null)
+                return String.format("%s %s", price.getCurrency(), price.getPrice());
 
+            return null;
         } catch (Exception e) {
             log.error("Unexpected error retrieving price for vehicle {}", vehicleId, e);
         }
@@ -55,17 +57,19 @@ public class PriceClient {
 
     public Price SetVehiclePrice(Long vehicleId, String priceValue, String currency) throws SetVehiclePriceException {
         try {
-            Price price = client
-                    .post()
-                    .uri(uriBuilder -> uriBuilder
-                            .path("services/prices/")
-                            .queryParam("vehicleId", vehicleId, "priceValue", priceValue, "currency", currency)
-                            .build()
-                    )
+
+            var payload = "{\n" +
+                    "\"vehicleId\":" + "\"" + vehicleId.toString() + "\"" + ",\n" +
+                    "\"currency\":" + "\"" + currency + "\"" + ",\n" +
+                    "\"price\":" + "\"" + priceValue + "\"" + "\n" +
+                    "}";
+
+            return client.post()
+                    .uri(new URI("http://localhost:8082/prices"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromObject(payload))
                     .retrieve().bodyToMono(Price.class).block();
-
-            return price;
-
         } catch (Exception e) {
             throw new SetVehiclePriceException("vehicle price set exception");
         }
