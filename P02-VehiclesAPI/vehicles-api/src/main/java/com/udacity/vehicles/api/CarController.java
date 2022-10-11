@@ -2,11 +2,14 @@ package com.udacity.vehicles.api;
 
 
 import com.udacity.vehicles.domain.car.Car;
+import com.udacity.vehicles.exception.SetVehiclePriceException;
 import com.udacity.vehicles.service.CarService;
 import org.springframework.hateoas.Resource;
 import org.springframework.hateoas.Resources;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -66,7 +69,12 @@ class CarController {
      */
     @PostMapping
     ResponseEntity<?> post(@Valid @RequestBody Car car) throws URISyntaxException {
-        Car newCar = this.carService.save(car);
+        Car newCar = null;
+        try {
+            newCar = this.carService.save(car);
+        } catch (SetVehiclePriceException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
         Resource<Car> resource = assembler.toResource(newCar);
         return ResponseEntity.created(new URI(resource.getId().expand().getHref())).body(resource);
     }
@@ -81,7 +89,12 @@ class CarController {
     @PutMapping("/{id}")
     ResponseEntity<?> put(@PathVariable Long id, @Valid @RequestBody Car car) {
         car.setId(id);
-        Car updatedCar = this.carService.save(car);
+        Car updatedCar = null;
+        try {
+            updatedCar = this.carService.save(car);
+        } catch (SetVehiclePriceException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+        }
         Resource<Car> resource = assembler.toResource(updatedCar);
         return ResponseEntity.ok(resource);
     }
