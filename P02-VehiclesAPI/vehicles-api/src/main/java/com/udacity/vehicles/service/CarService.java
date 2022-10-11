@@ -52,10 +52,11 @@ public class CarService {
         }
 
         var price = this.pricingService.getPrice(id);
-
         var selectedCarLocation = selectedCar.get().getLocation();
         var location = this.mapService.getAddress(selectedCarLocation);
         selectedCar.get().setLocation(location);
+        selectedCar.get().setPrice(price);
+
         return selectedCar.get();
     }
 
@@ -67,10 +68,12 @@ public class CarService {
      */
     public Car save(Car car) {
         if (car.getId() != null) {
+            this.pricingService.setVehiclePrice(car.getId(), car.getPrice(), "EGP");
             return repository.findById(car.getId())
                     .map(carToBeUpdated -> {
                         carToBeUpdated.setDetails(car.getDetails());
                         carToBeUpdated.setLocation(car.getLocation());
+                        carToBeUpdated.setPrice(car.getPrice());
                         return repository.save(carToBeUpdated);
                     }).orElseThrow(CarNotFoundException::new);
         }
@@ -90,6 +93,7 @@ public class CarService {
             throw new CarNotFoundException("Car Not Found");
         }
 
+        this.pricingService.deleteVehiclePrice(selectedCar.get().getId());
         this.repository.delete(selectedCar.get());
     }
 }

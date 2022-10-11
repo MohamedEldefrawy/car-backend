@@ -1,5 +1,6 @@
 package com.udacity.vehicles.service;
 
+import com.udacity.vehicles.client.prices.Price;
 import com.udacity.vehicles.client.prices.PriceClient;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,7 +14,18 @@ public class PricingService {
     }
 
     public String getPrice(Long id) {
-        RestTemplate restTemplate = new RestTemplate();
         return this.priceClient.getPrice(id);
+    }
+
+    public Price setVehiclePrice(Long id, String priceValue, String currency) {
+        try {
+            return this.priceClient.SetVehiclePrice(id, priceValue, currency);
+        } catch (SetVehiclePriceException e) {
+            throw new CarNotFoundException(e.getMessage());
+        }
+    }
+
+    public void deleteVehiclePrice(Long id) {
+        this.priceClient.deleteVehiclePrice(id);
     }
 }

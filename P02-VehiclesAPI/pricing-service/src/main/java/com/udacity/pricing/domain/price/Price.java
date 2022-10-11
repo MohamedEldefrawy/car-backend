@@ -1,15 +1,25 @@
 package com.udacity.pricing.domain.price;
 
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import javax.persistence.Entity;
+import javax.persistence.EntityListeners;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.math.BigDecimal;
 
 /**
  * Represents the price of a given vehicle, including currency.
  */
+@Entity
+@EntityListeners(AuditingEntityListener.class)
+@Table(name = "prices")
 public class Price {
 
+    @Id
+    private Long vehicleId;
     private String currency;
     private BigDecimal price;
-    private Long vehicleId;
 
     public Price() {
     }
@@ -19,6 +29,7 @@ public class Price {
         this.price = price;
         this.vehicleId = vehicleId;
     }
+
 
     public String getCurrency() {
         return currency;
