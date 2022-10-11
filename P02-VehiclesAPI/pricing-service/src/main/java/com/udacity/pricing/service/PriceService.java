@@ -1,6 +1,7 @@
 package com.udacity.pricing.service;
 
 import com.udacity.pricing.domain.price.Price;
+import com.udacity.pricing.exception.InsertPriceToVehicleException;
 import com.udacity.pricing.exception.PriceNotFoundException;
 import com.udacity.pricing.repository.PriceRepository;
 import org.springframework.stereotype.Service;
@@ -33,11 +34,35 @@ public class PriceService {
         return priceOptional.get();
     }
 
-    public Price save(Price price) {
-        return this.priceRepository.save(price);
+    public Price insert(Price price) throws InsertPriceToVehicleException {
+        try {
+            var selectedPRiceOptional = this.priceRepository.findById(price.getVehicleId());
+            if (!selectedPRiceOptional.isPresent())
+                return this.priceRepository.save(price);
+            else throw new InsertPriceToVehicleException("Price is already set");
+        } catch (IllegalArgumentException illegalArgumentException) {
+            throw new InsertPriceToVehicleException(illegalArgumentException.getMessage());
+        }
     }
 
-    public void delete(Long vehicleId) {
-        this.priceRepository.deleteById(vehicleId);
+    public Price update(Price price) throws PriceNotFoundException {
+        try {
+            var selectedPRiceOptional = this.priceRepository.findById(price.getVehicleId());
+            if (!selectedPRiceOptional.isPresent())
+                throw new PriceNotFoundException("Vehicle Price Not Found");
+            else
+                return this.priceRepository.save(price);
+
+        } catch (IllegalArgumentException e) {
+            throw new PriceNotFoundException("Vehicle Price Not Found");
+        }
+    }
+
+    public void delete(Long vehicleId) throws PriceNotFoundException {
+        var selectedPrice = this.priceRepository.findById(vehicleId);
+        if (selectedPrice.isPresent())
+            this.priceRepository.deleteById(vehicleId);
+        else
+            throw new PriceNotFoundException("Price of Vehicle Not Found");
     }
 }
