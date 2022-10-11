@@ -27,8 +27,8 @@ public class PriceController {
         }
     }
 
-    @DeleteMapping("/id")
-    public ResponseEntity<Void> delete(@RequestParam Long vehicleId) {
+    @DeleteMapping("/{vehicleId}")
+    public ResponseEntity<Void> delete(@PathVariable Long vehicleId) {
         try {
             this.priceService.delete(vehicleId);
             return new ResponseEntity<Void>(HttpStatus.OK);
@@ -37,8 +37,8 @@ public class PriceController {
         }
     }
 
-    @GetMapping("/id")
-    public ResponseEntity<Price> get(@RequestParam Long vehicleId) {
+    @GetMapping("/{vehicleId}")
+    public ResponseEntity<Price> get(@PathVariable Long vehicleId) {
         try {
             return new ResponseEntity<>(this.priceService.get(vehicleId), HttpStatus.OK);
         } catch (PriceNotFoundException e) {
@@ -46,7 +46,7 @@ public class PriceController {
         }
     }
 
-    @PutMapping("/id")
+    @PutMapping
     public ResponseEntity<Price> update(@RequestBody Price price) {
         try {
             return new ResponseEntity<Price>(this.priceService.update(price), HttpStatus.OK);
