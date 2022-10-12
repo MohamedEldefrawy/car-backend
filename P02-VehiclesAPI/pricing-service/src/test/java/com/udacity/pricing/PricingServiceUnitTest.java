@@ -3,7 +3,7 @@ package com.udacity.pricing;
 import com.udacity.pricing.domain.price.Price;
 import com.udacity.pricing.exception.InsertPriceToVehicleException;
 import com.udacity.pricing.exception.PriceNotFoundException;
-import com.udacity.pricing.service.PriceService;
+import com.udacity.pricing.repository.PriceRepository;
 import org.junit.Test;
 import org.junit.jupiter.api.Assertions;
 import org.junit.runner.RunWith;
@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 public class PricingServiceUnitTest {
 
     @Autowired
-    private PriceService priceService;
+    private PriceRepository priceRepository;
 
     @Test
     public void testCreatePrice() {
@@ -28,24 +28,7 @@ public class PricingServiceUnitTest {
         price.setPrice(new BigDecimal(200000));
 
         Assertions.assertDoesNotThrow(() -> {
-            this.priceService.insert(price);
-        });
-    }
-
-    @Test
-    public void testCreatePriceWithDuplicatedId() {
-        var price = new Price();
-        price.setVehicleId(1500L);
-        price.setCurrency("EGP");
-        price.setPrice(new BigDecimal(200000));
-        try {
-            this.priceService.insert(price);
-        } catch (InsertPriceToVehicleException e) {
-            throw new RuntimeException(e);
-        }
-
-        Assertions.assertThrows(InsertPriceToVehicleException.class, () -> {
-            this.priceService.insert(price);
+            this.priceRepository.save(price);
         });
     }
 
@@ -56,34 +39,12 @@ public class PricingServiceUnitTest {
         price.setCurrency("USD");
         price.setPrice(new BigDecimal(200000));
 
-        try {
-            this.priceService.insert(price);
-        } catch (InsertPriceToVehicleException e) {
-            throw new RuntimeException(e);
-        }
+        this.priceRepository.save(price);
+
 
         price.setCurrency("EGP");
         Assertions.assertDoesNotThrow(() -> {
-            this.priceService.update(price);
-        });
-    }
-
-    @Test
-    public void testUpdatePriceWithInvalidId() {
-        var price = new Price();
-        price.setVehicleId(104L);
-        price.setCurrency("USD");
-        price.setPrice(new BigDecimal(200000));
-
-        try {
-            this.priceService.insert(price);
-        } catch (InsertPriceToVehicleException e) {
-            throw new RuntimeException(e);
-        }
-
-        Assertions.assertThrows(PriceNotFoundException.class, () -> {
-            price.setVehicleId(10000L);
-            this.priceService.update(price);
+            this.priceRepository.save(price);
         });
     }
 
@@ -94,32 +55,10 @@ public class PricingServiceUnitTest {
         price.setCurrency("USD");
         price.setPrice(new BigDecimal(200000));
 
-        try {
-            this.priceService.insert(price);
-        } catch (InsertPriceToVehicleException e) {
-            throw new RuntimeException(e);
-        }
+        this.priceRepository.save(price);
 
         Assertions.assertDoesNotThrow(() -> {
-            this.priceService.delete(price.getVehicleId());
-        });
-    }
-
-    @Test
-    public void testDeletePriceWithInvalidId() {
-        var price = new Price();
-        price.setVehicleId(102L);
-        price.setCurrency("USD");
-        price.setPrice(new BigDecimal(200000));
-
-        try {
-            this.priceService.insert(price);
-        } catch (InsertPriceToVehicleException e) {
-            throw new RuntimeException(e);
-        }
-
-        Assertions.assertThrows(PriceNotFoundException.class, () -> {
-            this.priceService.delete(57357l);
+            this.priceRepository.deleteById(price.getVehicleId());
         });
     }
 }
