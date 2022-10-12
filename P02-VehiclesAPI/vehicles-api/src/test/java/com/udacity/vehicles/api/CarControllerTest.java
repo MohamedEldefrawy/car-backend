@@ -18,6 +18,7 @@ import com.udacity.vehicles.domain.Location;
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.domain.car.Details;
 import com.udacity.vehicles.domain.manufacturer.Manufacturer;
+import com.udacity.vehicles.exception.SetVehiclePriceException;
 import com.udacity.vehicles.service.CarService;
 import java.net.URI;
 import java.util.Collections;
@@ -65,7 +66,11 @@ public class CarControllerTest {
     public void setup() {
         Car car = getCar();
         car.setId(1L);
-        given(carService.save(any())).willReturn(car);
+        try {
+            given(carService.save(any())).willReturn(car);
+        } catch (SetVehiclePriceException e) {
+            throw new RuntimeException(e);
+        }
         given(carService.findById(any())).willReturn(car);
         given(carService.list()).willReturn(Collections.singletonList(car));
     }
