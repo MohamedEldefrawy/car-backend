@@ -50,13 +50,13 @@ public class PriceClient {
         return "(consult price)";
     }
 
-    public Price SetVehiclePrice(Long vehicleId, String priceValue, String currency) throws SetVehiclePriceException {
+    public Price SetVehiclePrice(Price price) throws SetVehiclePriceException {
         try {
 
             var payload = "{\n" +
-                    "\"vehicleId\":" + "\"" + vehicleId.toString() + "\"" + ",\n" +
-                    "\"currency\":" + "\"" + currency + "\"" + ",\n" +
-                    "\"price\":" + "\"" + priceValue + "\"" + "\n" +
+                    "\"vehicleId\":" + "\"" + price.getVehicleId().toString() + "\"" + ",\n" +
+                    "\"currency\":" + "\"" + price.getCurrency() + "\"" + ",\n" +
+                    "\"price\":" + "\"" + price.getPrice() + "\"" + "\n" +
                     "}";
 
             return client.post()
@@ -79,6 +79,26 @@ public class PriceClient {
                     .retrieve().bodyToMono(Void.class).block();
         } catch (Exception e) {
             log.error("Unexpected error retrieving price for vehicle {}", vehicleId, e);
+        }
+    }
+
+    public Price updateVehiclePrice(Price price) throws SetVehiclePriceException {
+        try {
+            var payload = "{\n" +
+                    "\"vehicleId\":" + "\"" + price.getVehicleId().toString() + "\"" + ",\n" +
+                    "\"currency\":" + "\"" + price.getCurrency() + "\"" + ",\n" +
+                    "\"price\":" + "\"" + price.getPrice() + "\"" + "\n" +
+                    "}";
+
+            return client.put()
+                    .uri(new URI("http://localhost:8082/prices"))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(BodyInserters.fromObject(payload))
+                    .retrieve().bodyToMono(Price.class).block();
+        } catch (
+                Exception e) {
+            throw new SetVehiclePriceException("vehicle price set exception");
         }
     }
 }

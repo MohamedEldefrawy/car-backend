@@ -1,5 +1,6 @@
 package com.udacity.vehicles.service;
 
+import com.udacity.vehicles.client.prices.Price;
 import com.udacity.vehicles.domain.car.Car;
 import com.udacity.vehicles.domain.car.CarRepository;
 import com.udacity.vehicles.exception.CarNotFoundException;
@@ -7,6 +8,7 @@ import com.udacity.vehicles.exception.SetVehiclePriceException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -76,7 +78,11 @@ public class CarService {
      */
     public Car save(Car car) throws SetVehiclePriceException {
         if (car.getId() != null) {
-            this.pricingService.setVehiclePrice(car.getId(), car.getPrice(), "EGP");
+            var price = new Price();
+            price.setVehicleId(car.getId());
+            price.setCurrency("EGP");
+            price.setPrice(new BigDecimal(car.getPrice().split(" ")[1]));
+            this.pricingService.updateVehiclePrice(price);
             return repository.findById(car.getId())
                     .map(carToBeUpdated -> {
                         carToBeUpdated.setDetails(car.getDetails());
@@ -86,7 +92,11 @@ public class CarService {
                     }).orElseThrow(CarNotFoundException::new);
         }
         var newCar = repository.save(car);
-        var price = this.pricingService.setVehiclePrice(newCar.getId(), newCar.getPrice(), "EGP");
+        var newPrice = new Price();
+        newPrice.setPrice(new BigDecimal(car.getPrice()));
+        newPrice.setVehicleId(newCar.getId());
+        newPrice.setCurrency("EGP");
+        var price = this.pricingService.setVehiclePrice(newPrice);
         if (price == null)
             throw new SetVehiclePriceException("Set Price Exception");
         return newCar;

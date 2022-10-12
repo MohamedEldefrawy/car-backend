@@ -17,9 +17,17 @@ public class PricingService {
         return this.priceClient.getPrice(id);
     }
 
-    public Price setVehiclePrice(Long id, String priceValue, String currency) throws SetVehiclePriceException {
+    public Price setVehiclePrice(Price price) throws SetVehiclePriceException {
         try {
-            return this.priceClient.SetVehiclePrice(id, priceValue, currency);
+            return this.priceClient.SetVehiclePrice(price);
+        } catch (SetVehiclePriceException e) {
+            throw new SetVehiclePriceException(e.getMessage());
+        }
+    }
+
+    public Price updateVehiclePrice(Price price) throws SetVehiclePriceException {
+        try {
+            return this.priceClient.updateVehiclePrice(price);
         } catch (SetVehiclePriceException e) {
             throw new SetVehiclePriceException(e.getMessage());
         }
@@ -28,4 +36,5 @@ public class PricingService {
     public void deleteVehiclePrice(Long id) {
         this.priceClient.deleteVehiclePrice(id);
     }
+
 }
